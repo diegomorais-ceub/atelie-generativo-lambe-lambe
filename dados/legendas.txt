@@ -1,0 +1,4 @@
+# Legendas revisadas — uma linha por imagem, prefixada com o token do estilo.
+# Formato:  <arquivo>\t<legenda revisada>
+# Exemplo:
+# img_001.jpg	estilo_lambelambe, um cartaz de rua colado em muro urbano, tipografia vintage

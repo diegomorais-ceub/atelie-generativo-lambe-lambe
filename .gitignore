@@ -1,0 +1,20 @@
+# Credenciais / segredos
+.env
+*.key
+*token*
+
+# Dados pesados / pesos de modelo (usar Hub/Drive)
+*.safetensors
+*.ckpt
+*.bin
+checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# SO
+.DS_Store

@@ -18,3 +18,6 @@ venv/
 
 # SO
 .DS_Store
+
+# LibreOffice lock files
+.~lock.*#

@@ -1,5 +1,8 @@
 # Ateliê Generativo — Estilo Lambe-Lambe
 
+[![Open in Spaces](https://img.shields.io/badge/🤗%20Spaces-Testar%20a%20aplicação-blue)](https://huggingface.co/spaces/lamble-lambe/atelie)
+[![Model on HF](https://img.shields.io/badge/🤗%20Model-Pesos%20LoRA-yellow)](https://huggingface.co/lamble-lambe/atelie)
+
 Projeto da disciplina **Inteligência Artificial Generativa e Modelos Multimodais** (UniCEUB).
 Especialização do **Stable Diffusion v1-5** em um estilo visual próprio via **LoRA**, integrado a um
 **pipeline multimodal** (LLM → Difusor+LoRA → TTS) publicado na web com Gradio.
@@ -25,9 +28,24 @@ Tema curto  →  LLM expande prompt  →  Difusor+LoRA gera imagem  →  TTS nar
 
 ## Links
 
-- **Space (Gradio):** _a definir_
-- **Pesos LoRA (Hub):** _a definir_
+- **Aplicação — Space (Gradio):** https://huggingface.co/spaces/lamble-lambe/atelie
+- **Modelo — Pesos LoRA (Hub):** https://huggingface.co/lamble-lambe/atelie
 - **Relatório final:** [`relatorio/relatorio_final.pdf`](relatorio/relatorio_final.pdf)
+
+### Usar o modelo
+
+```python
+from diffusers import StableDiffusionPipeline
+import torch
+
+pipe = StableDiffusionPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16
+).to("cuda")
+pipe.load_lora_weights("lamble-lambe/atelie")
+
+img = pipe("estilo_lambelambe, retrato de uma feira de domingo").images[0]
+img.save("saida.png")
+```
 
 ## Estrutura do repositório
 

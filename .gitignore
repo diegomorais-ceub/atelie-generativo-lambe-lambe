@@ -16,8 +16,17 @@ __pycache__/
 .venv/
 venv/
 
+# Legendas / metadata e outros .txt/.jsonl gerados (rascunhos regeneráveis no notebook 01)
+*.txt
+*.jsonl
+# ...exceto os arquivos que PRECISAM ficar versionados:
+!**/requirements.txt      # dependências do Space (sem isso o app não sobe)
+!dados/legendas.txt       # entregável: legendas revisadas (checklist §7)
+!dados/metadata.jsonl     # insumo do treino, referenciado no README
+
 # SO
 .DS_Store
 
 # LibreOffice lock files
 .~lock.*#
+

@@ -11,7 +11,7 @@ Especialização do **Stable Diffusion v1-5** em um estilo visual próprio via *
 
 ```
 Tema curto  →  LLM expande prompt  →  Difusor+LoRA gera imagem  →  TTS narra descrição  →  Gradio exibe tudo
-("feira de       (Qwen2.5-0.5B)         (estilo lambe-lambe)          (Bark)             (imagem+texto+áudio)
+("feira de       (Qwen2.5-0.5B)         (estilo lambe-lambe)          (MMS-TTS)          (imagem+texto+áudio)
  domingo")
 ```
 
@@ -69,11 +69,11 @@ atelie-generativo-lambe-lambe/
 
 | Frente | Responsável | Entregável principal |
 |--------|-------------|----------------------|
-| Dados | _________ | `01_dataset.ipynb`, `fontes.csv`, legendas |
-| Treinamento | _________ | `02_treino_lora.ipynb`, pesos no Hub |
-| Pipeline | _________ | `app/app.py` |
-| Interface | _________ | Space Gradio público |
-| Documentação | _________ | `relatorio_final.pdf`, model card, README |
+| Dados | Higo Soares | `01_dataset.ipynb`, `fontes.csv`, legendas |
+| Treinamento | Diego Nunes | `02_treino_lora.ipynb`, pesos no Hub |
+| Avaliação | Paulo Victor | `03_avaliacao.ipynb`, avaliação humana |
+| Pipeline e interface | Eduardo Deodoro | `app/app.py`, Space Gradio público |
+| Documentação | Lúcio Flávio | `relatorio_final.pdf`, model card, README |
 
 ## Ética e licenças
 

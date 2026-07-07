@@ -98,10 +98,11 @@ def gerar_imagem(prompt: str, guidance_scale: float = 7.5, seed: int = 0):
     """Gera a imagem com Stable Diffusion v1-5 + pesos LoRA da equipe."""
     pipe = _get_diffusion()
     gerador = torch.Generator(device=DEVICE).manual_seed(int(seed))
+    passos = 20 if DEVICE == "cpu" else 30  # menos passos em CPU (Space grátis) para não travar
     resultado = pipe(
         prompt,
         guidance_scale=float(guidance_scale),
-        num_inference_steps=30,
+        num_inference_steps=passos,
         generator=gerador,
     )
     return resultado.images[0]

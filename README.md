@@ -114,6 +114,16 @@ atelie-generativo-lambe-lambe/
 
 ## Equipe
 
+**Disciplina:** Inteligência Artificial Generativa e Modelos Multimodais — UniCEUB
+**Professor:** Romes Heriberto
+
+**Participantes:**
+- Diego Nunes de Morais
+- Eduardo Deodoro de Moraes Florindo
+- Higo Soares do Lago
+- Lucio Flavio Vilar de Azevedo
+- Paulo Victor Torres Martins
+
 | Frente | Responsável | Entregável principal |
 |--------|-------------|----------------------|
 | Dados | _________ | `01_dataset.ipynb`, `fontes.csv`, legendas |

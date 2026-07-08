@@ -9,6 +9,8 @@ Modelos são carregados de forma preguiçosa (lazy): só na primeira geração, 
 estourar a memória na inicialização do Space e não pagar o custo de carga se ninguém usar.
 """
 
+import base64
+import mimetypes
 import os
 
 import torch
@@ -25,6 +27,33 @@ LORA_REVISION = os.environ.get("LORA_REVISION", "").strip()
 LLM_MODEL = os.environ.get("LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
 TTS_MODEL = os.environ.get("TTS_MODEL", "facebook/mms-tts-por")  # TTS neural em português
 STYLE_TOKEN = "estilo_lambelambe,"
+
+# --- Identificação do projeto (exibida na aba "Sobre") ----------------------
+DISCIPLINA = "Inteligência Artificial Generativa e Modelos Multimodais — UniCEUB"
+PROFESSOR = "Prof. Romes Heriberto"
+PARTICIPANTES = [
+    "Diego Nunes de Morais",
+    "Eduardo Deodoro de Moraes Florindo",
+    "Higo Soares do Lago",
+    "Lucio Flavio Vilar de Azevedo",
+    "Paulo Victor Torres Martins",
+]
+# Versão vigente do modelo em produção (vinda de LORA_REVISION; vazio = última do main)
+VERSAO_VIGENTE = LORA_REVISION or "main (última publicada)"
+
+SOBRE_MD = f"""
+### Sobre o projeto
+**Ateliê Generativo — Estilo Lambe-Lambe.** Especialização do **Stable Diffusion v1-5** no estilo de
+**fotografia lambe-lambe / retrato vintage** (preto e branco, granulação, composição clássica) via **LoRA**,
+integrada a um **pipeline multimodal**: um LLM expande o tema, o difusor com o LoRA gera a imagem no estilo
+treinado e um modelo de voz narra a descrição.
+
+- **Disciplina:** {DISCIPLINA}
+- **Professor:** {PROFESSOR}
+- **Participantes:** {", ".join(PARTICIPANTES)}
+- **Modelo:** [`{LORA_REPO}`](https://huggingface.co/{LORA_REPO})
+- **Versão vigente (produção):** `{VERSAO_VIGENTE}`
+"""
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DTYPE = torch.float16 if DEVICE == "cuda" else torch.float32
@@ -132,9 +161,46 @@ def pipeline(tema: str, guidance_scale: float, seed: int):
     return imagem, prompt, audio
 
 
+# --- Identidade visual (cores UniCEUB) --------------------------------------
+CEUB_ROXO = "#56148a"           # roxo institucional UniCEUB (extraído do site oficial)
+CEUB_ROXO_ESCURO = "#330066"
+CEUB_DOURADO = "#f0cc25"        # dourado de destaque
+LOGO_PATH = os.environ.get("LOGO_PATH", "ceub_logo.png")  # logo oficial (logoCEUB2021.png) na raiz do Space
+
+
+def _logo_data_uri(path: str) -> str:
+    """Embute a logo como data-URI (evita depender do file-serving do Space)."""
+    if not os.path.exists(path):
+        return ""
+    mime = mimetypes.guess_type(path)[0] or "image/png"
+    dados = base64.b64encode(open(path, "rb").read()).decode()
+    return f"data:{mime};base64,{dados}"
+
+
+LOGO_URI = _logo_data_uri(LOGO_PATH)
+
+TEMA_CEUB = gr.themes.Default(
+    primary_hue=gr.themes.colors.purple,
+    neutral_hue=gr.themes.colors.gray,
+)
+CSS_CEUB = f"""
+.gradio-container {{ max-width: 1024px !important; }}
+#cabecalho {{ display:flex; align-items:center; gap:16px;
+             border-bottom:4px solid {CEUB_DOURADO}; padding-bottom:12px; margin-bottom:6px; }}
+#cabecalho img {{ height:56px; width:auto; }}
+#cabecalho h1 {{ margin:0; color:{CEUB_ROXO}; font-weight:800; line-height:1.1; }}
+button.primary, .primary {{ background:{CEUB_ROXO} !important; border-color:{CEUB_ROXO} !important; }}
+button.primary:hover, .primary:hover {{ background:{CEUB_ROXO_ESCURO} !important; }}
+a {{ color:{CEUB_ROXO}; }}
+"""
+
 # --- Interface Gradio -------------------------------------------------------
-with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
-    gr.Markdown("# Ateliê Generativo — Estilo Lambe-Lambe")
+with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe", theme=TEMA_CEUB, css=CSS_CEUB) as demo:
+    _logo_img = f'<img src="{LOGO_URI}" alt="UniCEUB">' if LOGO_URI else ""
+    gr.HTML(f'<div id="cabecalho">{_logo_img}<h1>Ateliê Generativo — Estilo Lambe-Lambe</h1></div>')
+    gr.Markdown(f"*{DISCIPLINA} · {PROFESSOR} · modelo `{VERSAO_VIGENTE}`*")
+    with gr.Accordion("Sobre o projeto", open=False):
+        gr.Markdown(SOBRE_MD)
     with gr.Row():
         tema = gr.Textbox(label="Tema", placeholder="ex.: feira de domingo")
     with gr.Row():

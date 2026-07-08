@@ -75,6 +75,22 @@ Para carregar uma versão específica, use `revision`:
 pipe.load_lora_weights("lamble-lambe/atelie", revision="v1.0.0")
 ```
 
+### Configuração do Space (produção)
+
+O `app/app.py` lê variáveis de ambiente (definidas em **Settings → Variables and secrets** do Space).
+A mais importante é a **`LORA_REVISION`**, que fixa qual versão do modelo roda em produção — assim o
+Space fica **estável e imune a pushes experimentais** no `main`:
+
+| Variável | Padrão | Função |
+|----------|--------|--------|
+| `LORA_REVISION` | *(vazio = `main`)* | **Fixa a versão de produção** (ex.: `v1.0.0`). Promover = trocar a tag aqui. |
+| `LORA_REPO` | `lamble-lambe/atelie` | Repositório dos pesos LoRA |
+| `BASE_MODEL` | `stable-diffusion-v1-5/stable-diffusion-v1-5` | Modelo base |
+| `LLM_MODEL` | `Qwen/Qwen2.5-0.5B-Instruct` | LLM que expande o tema (em inglês) |
+| `TTS_MODEL` | `facebook/mms-tts-por` | Síntese de voz |
+
+> **Nunca** coloque tokens/segredos no código — apenas em *secrets* do Space.
+
 ## Estrutura do repositório
 
 ```

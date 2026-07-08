@@ -55,6 +55,25 @@ treinado e um modelo de voz narra a descrição.
 - **Versão vigente (produção):** `{VERSAO_VIGENTE}`
 """
 
+INSTRUCOES_MD = """
+### Como usar
+1. **Escreva o tema em inglês.** O Stable Diffusion v1-5 é nativo em inglês — prompts em inglês
+   produzem resultados **mais fiéis e nítidos**. Ex.: `boys playing football in the street`,
+   `an old sunday market`, `a street musician`.
+2. Clique em **Gerar**. O sistema expande o tema, gera a imagem no estilo lambe-lambe e narra a descrição.
+
+**Guidance scale** — o quanto a imagem obedece ao prompt:
+- **Baixo (1–5):** mais criativo/variado, porém menos fiel ao texto.
+- **Médio (7–9):** equilíbrio recomendado (padrão **7.5**).
+- **Alto (12–15):** segue o prompt ao máximo, mas pode ficar saturado/artificial.
+
+**Seed** — controla a aleatoriedade: a **mesma seed + mesmo prompt** reproduz a **mesma imagem**
+(útil para comparar). Mude a seed para gerar variações.
+
+> Dica: como o modelo foi treinado com **retratos**, cenas de pessoas *posando* saem melhor que ação.
+> Na primeira geração os modelos são carregados sob demanda — no hardware gratuito (CPU) isso leva alguns minutos.
+"""
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 DTYPE = torch.float16 if DEVICE == "cuda" else torch.float32
 
@@ -200,6 +219,8 @@ with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
     gr.Markdown(f"*{DISCIPLINA} · {PROFESSOR} · modelo `{VERSAO_VIGENTE}`*")
     with gr.Accordion("Sobre o projeto", open=True):
         gr.Markdown(SOBRE_MD)
+    with gr.Accordion("Como usar", open=False):
+        gr.Markdown(INSTRUCOES_MD)
     with gr.Row():
         tema = gr.Textbox(label="Tema", placeholder="e.g.: an old sunday market")
     with gr.Row():

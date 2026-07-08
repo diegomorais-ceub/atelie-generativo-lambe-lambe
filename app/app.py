@@ -27,6 +27,11 @@ LORA_REVISION = os.environ.get("LORA_REVISION", "").strip()
 LLM_MODEL = os.environ.get("LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
 TTS_MODEL = os.environ.get("TTS_MODEL", "facebook/mms-tts-por")  # TTS neural em português
 STYLE_TOKEN = "estilo_lambelambe,"
+# Reforço de estilo: acrescentado ao fim de todo prompt para firmar o P&B vintage
+# mesmo em temas fora da distribuição de treino (retratos).
+STYLE_SUFFIX = "black and white, vintage photograph, grainy, classic composition"
+# Negative prompt fixo: empurra para longe de cor/estética moderna.
+NEGATIVE_PROMPT = "color, colorful, modern, blurry, deformed, low quality, watermark, text"
 
 # --- Identificação do projeto (exibida na aba "Sobre") ----------------------
 DISCIPLINA = "Inteligência Artificial Generativa e Modelos Multimodais — UniCEUB"
@@ -53,6 +58,29 @@ treinado e um modelo de voz narra a descrição.
 - **Participantes:** {", ".join(PARTICIPANTES)}
 - **Modelo:** [`{LORA_REPO}`](https://huggingface.co/{LORA_REPO})
 - **Versão vigente (produção):** `{VERSAO_VIGENTE}`
+"""
+
+INSTRUCOES_MD = """
+### Como usar
+1. **Escreva o tema em inglês.** O Stable Diffusion v1-5 é nativo em inglês — prompts em inglês
+   produzem resultados **mais fiéis e nítidos**. Ex.: `boys playing football in the street`,
+   `an old sunday market`, `a street musician`.
+2. Clique em **Gerar**. O sistema expande o tema, gera a imagem no estilo lambe-lambe e narra a descrição.
+
+**Guidance scale** — o quanto a imagem obedece ao prompt:
+- **Baixo (1–5):** mais criativo/variado, porém menos fiel ao texto.
+- **Médio (7–9):** equilíbrio recomendado (padrão **7.5**).
+- **Alto (12–15):** segue o prompt ao máximo, mas pode ficar saturado/artificial.
+
+**Seed** — controla a aleatoriedade: a **mesma seed + mesmo prompt** reproduz a **mesma imagem**
+(útil para comparar). Mude a seed para gerar variações.
+
+**Negative prompt** (em *Opções avançadas*) — lista o que a imagem deve **evitar**. Já vem preenchido
+para reforçar o estilo (`color, modern, blurry, ...`), afastando cor e aparência moderna. Edite para
+ajustar ou deixe vazio para desativar.
+
+> Dica: como o modelo foi treinado com **retratos**, cenas de pessoas *posando* saem melhor que ação.
+> Na primeira geração os modelos são carregados sob demanda — no hardware gratuito (CPU) isso leva alguns minutos.
 """
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -124,16 +152,21 @@ def expandir_prompt(tema: str) -> str:
     with torch.no_grad():
         saida = model.generate(**ids, max_new_tokens=80, do_sample=True, temperature=0.7)
     texto = tok.decode(saida[0][ids.input_ids.shape[1]:], skip_special_tokens=True).strip()
-    return f"{STYLE_TOKEN} {texto}"
+    return f"{STYLE_TOKEN} {texto}, {STYLE_SUFFIX}"
 
 
-def gerar_imagem(prompt: str, guidance_scale: float = 7.5, seed: int = 0):
+def gerar_imagem(prompt: str, guidance_scale: float = 7.5, seed: int = 0,
+                 negative_prompt: str = NEGATIVE_PROMPT):
     """Gera a imagem com Stable Diffusion v1-5 + pesos LoRA da equipe."""
+    # Garante que a palavra-gatilho do estilo esteja SEMPRE no prompt (aciona o LoRA).
+    if "estilo_lambelambe" not in prompt.lower():
+        prompt = f"{STYLE_TOKEN} {prompt}"
     pipe = _get_diffusion()
     gerador = torch.Generator(device=DEVICE).manual_seed(int(seed))
     passos = 20 if DEVICE == "cpu" else 30  # menos passos em CPU (Space grátis) para não travar
     resultado = pipe(
         prompt,
+        negative_prompt=(negative_prompt or None),  # 1 reforça P&B/vintage afastando cor/estética moderna
         guidance_scale=float(guidance_scale),
         num_inference_steps=passos,
         generator=gerador,
@@ -154,9 +187,9 @@ def narrar(tema: str):
     return model.config.sampling_rate, onda.squeeze().cpu().numpy()
 
 
-def pipeline(tema: str, guidance_scale: float, seed: int):
+def pipeline(tema: str, guidance_scale: float, seed: int, negative_prompt: str):
     prompt = expandir_prompt(tema)
-    imagem = gerar_imagem(prompt, guidance_scale, seed)
+    imagem = gerar_imagem(prompt, guidance_scale, seed, negative_prompt)
     audio = narrar(tema)
     return imagem, prompt, audio
 
@@ -200,11 +233,19 @@ with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
     gr.Markdown(f"*{DISCIPLINA} · {PROFESSOR} · modelo `{VERSAO_VIGENTE}`*")
     with gr.Accordion("Sobre o projeto", open=True):
         gr.Markdown(SOBRE_MD)
+    with gr.Accordion("Como usar", open=False):
+        gr.Markdown(INSTRUCOES_MD)
     with gr.Row():
         tema = gr.Textbox(label="Tema", placeholder="e.g.: an old sunday market")
     with gr.Row():
         guidance = gr.Slider(1.0, 15.0, value=7.5, label="Guidance scale")
         seed = gr.Number(value=0, label="Seed", precision=0)
+    with gr.Accordion("Opções avançadas", open=False):
+        negative = gr.Textbox(
+            label="Negative prompt (o que evitar)",
+            value=NEGATIVE_PROMPT,
+            info="Termos que a imagem deve evitar. Mantém o estilo P&B/vintage. Deixe vazio para desativar.",
+        )
     btn = gr.Button("Gerar", variant="primary")
     with gr.Row():
         out_img = gr.Image(label="Imagem gerada")
@@ -212,7 +253,7 @@ with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
             out_prompt = gr.Textbox(label="Prompt expandido")
             out_audio = gr.Audio(label="Narração")
 
-    btn.click(pipeline, inputs=[tema, guidance, seed], outputs=[out_img, out_prompt, out_audio])
+    btn.click(pipeline, inputs=[tema, guidance, seed, negative], outputs=[out_img, out_prompt, out_audio])
 
 
 if __name__ == "__main__":

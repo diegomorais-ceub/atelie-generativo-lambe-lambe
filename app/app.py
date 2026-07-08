@@ -17,8 +17,11 @@ from diffusers import StableDiffusionPipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer, VitsModel
 
 # --- Configuração (sobrescrevível por variável de ambiente no Space) ---------
-BASE_MODEL = os.environ.get("BASE_MODEL", "runwayml/stable-diffusion-v1-5")
+BASE_MODEL = os.environ.get("BASE_MODEL", "stable-diffusion-v1-5/stable-diffusion-v1-5")
 LORA_REPO = os.environ.get("LORA_REPO", "lamble-lambe/atelie")  # pesos oficiais da equipe
+# Versão do LoRA em produção. Vazio = último push no main (muda a cada treino).
+# Recomendado: defina uma tag semver (ex.: "v1.0.0") nas Settings do Space para fixar a produção.
+LORA_REVISION = os.environ.get("LORA_REVISION", "").strip()
 LLM_MODEL = os.environ.get("LLM_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
 TTS_MODEL = os.environ.get("TTS_MODEL", "facebook/mms-tts-por")  # TTS neural em português
 STYLE_TOKEN = "estilo_lambelambe,"
@@ -41,8 +44,9 @@ def _get_diffusion():
             BASE_MODEL, torch_dtype=DTYPE, safety_checker=None
         )
         try:
-            pipe.load_lora_weights(LORA_REPO)
-            print(f"[ok] LoRA aplicado: {LORA_REPO}")
+            # revision=None -> main (última versão); revision="vX.Y.Z" -> versão fixada
+            pipe.load_lora_weights(LORA_REPO, revision=LORA_REVISION or None)
+            print(f"[ok] LoRA aplicado: {LORA_REPO}@{LORA_REVISION or 'main'}")
         except Exception as erro:  # sem LoRA publicado ainda -> cai no modelo base
             print(f"[aviso] LoRA não carregado ({erro}); usando somente o modelo base")
         _diffusion = pipe.to(DEVICE)

@@ -184,7 +184,6 @@ TEMA_CEUB = gr.themes.Default(
     neutral_hue=gr.themes.colors.gray,
 )
 CSS_CEUB = f"""
-.gradio-container {{ max-width: 1024px !important; }}
 #cabecalho {{ display:flex; align-items:center; gap:16px;
              border-bottom:4px solid {CEUB_DOURADO}; padding-bottom:12px; margin-bottom:6px; }}
 #cabecalho img {{ height:56px; width:auto; }}
@@ -199,10 +198,10 @@ with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
     _logo_img = f'<img src="{LOGO_URI}" alt="UniCEUB">' if LOGO_URI else ""
     gr.HTML(f'<div id="cabecalho">{_logo_img}<h1>Ateliê Generativo — Estilo Lambe-Lambe</h1></div>')
     gr.Markdown(f"*{DISCIPLINA} · {PROFESSOR} · modelo `{VERSAO_VIGENTE}`*")
-    with gr.Accordion("Sobre o projeto", open=False):
+    with gr.Accordion("Sobre o projeto", open=True):
         gr.Markdown(SOBRE_MD)
     with gr.Row():
-        tema = gr.Textbox(label="Tema", placeholder="ex.: feira de domingo")
+        tema = gr.Textbox(label="Tema", placeholder="e.g.: an old sunday market")
     with gr.Row():
         guidance = gr.Slider(1.0, 15.0, value=7.5, label="Guidance scale")
         seed = gr.Number(value=0, label="Seed", precision=0)

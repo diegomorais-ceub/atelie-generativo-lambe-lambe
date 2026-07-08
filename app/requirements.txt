@@ -4,5 +4,4 @@ transformers
 accelerate
 peft
 torch
-torchao>=0.16.0
 sentencepiece

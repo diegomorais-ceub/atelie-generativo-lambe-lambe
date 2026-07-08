@@ -195,7 +195,7 @@ a {{ color:{CEUB_ROXO}; }}
 """
 
 # --- Interface Gradio -------------------------------------------------------
-with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe", theme=TEMA_CEUB, css=CSS_CEUB) as demo:
+with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe") as demo:
     _logo_img = f'<img src="{LOGO_URI}" alt="UniCEUB">' if LOGO_URI else ""
     gr.HTML(f'<div id="cabecalho">{_logo_img}<h1>Ateliê Generativo — Estilo Lambe-Lambe</h1></div>')
     gr.Markdown(f"*{DISCIPLINA} · {PROFESSOR} · modelo `{VERSAO_VIGENTE}`*")
@@ -217,4 +217,5 @@ with gr.Blocks(title="Ateliê Generativo — Lambe-Lambe", theme=TEMA_CEUB, css=
 
 
 if __name__ == "__main__":
-    demo.launch()
+    # Gradio 6: theme e css são passados no launch() (não mais no Blocks()).
+    demo.launch(theme=TEMA_CEUB, css=CSS_CEUB)

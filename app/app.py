@@ -31,7 +31,7 @@ STYLE_TOKEN = "estilo_lambelambe,"
 # mesmo em temas fora da distribuição de treino (retratos).
 STYLE_SUFFIX = "black and white, vintage photograph, grainy, classic composition"
 # Negative prompt fixo: empurra para longe de cor/estética moderna.
-NEGATIVE_PROMPT = "color, colorful, modern, blurry, deformed, low quality, watermark, text"
+NEGATIVE_PROMPT = "color, colorful, modern, blurry, out of focus, deformed, disfigured, deformed face, extra fingers, extra limbs, mutated hands, bad anatomy, ugly, low quality, low resolution, jpeg artifacts, watermark, text"
 
 # --- Identificação do projeto (exibida na aba "Sobre") ----------------------
 DISCIPLINA = "Inteligência Artificial Generativa e Modelos Multimodais — UniCEUB"

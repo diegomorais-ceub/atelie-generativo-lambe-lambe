@@ -16,13 +16,11 @@ __pycache__/
 .venv/
 venv/
 
-# Legendas / metadata e outros .txt/.jsonl gerados (rascunhos regeneráveis no notebook 01)
+# Legendas / metadata e outros .txt/.jsonl — GERADOS na execução do notebook 01 (BLIP + revisão),
+# portanto NÃO versionados. Reconstruídos a partir do fontes.csv + imagens.
 *.txt
 *.jsonl
-# ...exceto os arquivos que PRECISAM ficar versionados:
-!**/requirements.txt      # dependências do Space (sem isso o app não sobe)
-!dados/legendas.txt       # entregável: legendas revisadas (checklist §7)
-!dados/metadata.jsonl     # insumo do treino, referenciado no README
+!**/requirements.txt      # exceção: dependências do Space (sem isso o app não sobe)
 
 # SO
 .DS_Store

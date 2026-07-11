@@ -16,11 +16,14 @@ __pycache__/
 .venv/
 venv/
 
-# Legendas / metadata e outros .txt/.jsonl — GERADOS na execução do notebook 01 (BLIP + revisão),
-# portanto NÃO versionados. Reconstruídos a partir do fontes.csv + imagens.
+# .txt/.jsonl são gerados (BLIP); o metadata.jsonl (insumo do treino) fica fora do versionamento.
+# Exceções abaixo PRECISAM ficar versionadas (comentário em linha própria — .gitignore não aceita inline).
 *.txt
 *.jsonl
-!**/requirements.txt      # exceção: dependências do Space (sem isso o app não sobe)
+# dependências do Space (sem isso o app não sobe):
+!**/requirements.txt
+# legendas REVISADAS (entregável do checklist §7 / Critério 2):
+!dados/legendas.txt
 
 # SO
 .DS_Store

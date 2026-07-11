@@ -1,0 +1,37 @@
+# Legendas REVISADAS manualmente (rascunho BLIP corrigido olhando cada imagem).
+# Formato: <arquivo>\t<caption em inglês, prefixada com o token do estilo>
+tintype_dama_idosa.jpg	estilo_lambelambe, an elderly lady, bust portrait, tintype
+tintype_menino_boutonniere.jpg	estilo_lambelambe, a young boy with a boutonniere, bust portrait, tintype
+tintype_soldado_kepi.jpg	estilo_lambelambe, a soldier wearing a kepi, portrait, gem tintype
+tintype_familia_cinco.jpg	estilo_lambelambe, a group portrait of a family of five, tintype
+tintype_jovem_joias.jpg	estilo_lambelambe, a seated young woman wearing tinted gold jewelry, half-length portrait, tintype
+tintype_menino_flor.jpg	estilo_lambelambe, a young boy seated with a flower in his lapel, half-length portrait, tintype
+tintype_jovem_vestido_listrado.jpg	estilo_lambelambe, a young woman in a striped dress, half-length portrait, tintype
+ferrotipo_prospectores_1860.jpg	estilo_lambelambe, two prospectors posing together, portrait, ferrotype
+ferrotipo_album_chicago_1.jpg	estilo_lambelambe, a studio portrait from a ferrotype album, Photographie Chicago
+ferrotipo_album_chicago_4.jpg	estilo_lambelambe, a studio portrait from a ferrotype album, Photographie Chicago
+ambrotipo_familia_brown_1858.jpg	estilo_lambelambe, a family portrait, ambrotype
+ambrotipo_mulher_1857.jpg	estilo_lambelambe, a woman, studio portrait, ambrotype
+ambrotipo_duas_criancas.jpg	estilo_lambelambe, two children posing together, portrait, ambrotype
+cdv_estudio_abdms.jpg	estilo_lambelambe, a studio portrait of a person, carte de visite
+cdv_nordahl_1882.jpg	estilo_lambelambe, bust portrait of a man, carte de visite
+cdv_minerva_washburn.jpg	estilo_lambelambe, a woman, studio portrait, carte de visite
+cabinet_olive_stewart_1860.jpg	estilo_lambelambe, portrait of a young woman, cabinet card
+cabinet_casal_japones.jpg	estilo_lambelambe, a japanese couple holding hands, cabinet card
+met_christiano_vendedores_1.jpg	estilo_lambelambe, street vendors posing, carte de visite by Christiano Junior
+met_christiano_vendedor_homem.jpg	estilo_lambelambe, a male street vendor, carte de visite by Christiano Junior
+met_christiano_mulher.jpg	estilo_lambelambe, a woman, carte de visite by Christiano Junior
+met_christiano_vendedor.jpg	estilo_lambelambe, a street vendor, carte de visite by Christiano Junior
+met_tintype_cinco_homens.jpg	estilo_lambelambe, a group portrait of five men, tintype
+met_tintype_canteiro_crianca.jpg	estilo_lambelambe, a stonemason posing with a child, tintype
+met_tintype_funileiros.jpg	estilo_lambelambe, tinsmiths posing with their tools, group portrait, tintype
+met_ambrotipo_tipografo_odell.jpg	estilo_lambelambe, a typographer posing, portrait, ambrotype
+met_ambrotipo_tanoeiro.jpg	estilo_lambelambe, a cooper standing with his tools, portrait, ambrotype
+met_ambrotipo_gueixa.jpg	estilo_lambelambe, a geisha, portrait, ambrotype
+flickr_tintype_crianca.jpg	estilo_lambelambe, a child, close portrait, tintype
+flickr_ambrotipo_irmas.jpg	estilo_lambelambe, two sisters posing together, portrait, ambrotype
+flickr_cdv_louis_riel.jpg	estilo_lambelambe, a seated man looking at the camera, carte de visite
+flickr_soldado_jovem_1900.jpg	estilo_lambelambe, a young soldier, studio portrait, early twentieth century
+tintype_grupo_mulheres_toucas.jpg	estilo_lambelambe, a group portrait of women wearing bonnets, tintype
+tintype_grupo_quatorze_mulheres.jpg	estilo_lambelambe, a group portrait of fourteen women, tintype
+tintype_mulher_sec19.jpg	estilo_lambelambe, a nineteenth-century portrait of a woman, tintype

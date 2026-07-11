@@ -14,7 +14,7 @@ composição clássica de estúdio (tintypes, ambrótipos, cartes de visite e ca
 
 ```
 Tema curto  →  LLM expande prompt  →  Difusor+LoRA gera imagem  →  TTS narra descrição  →  Gradio exibe tudo
-("feira de       (Qwen2.5-0.5B)         (estilo lambe-lambe)          (Bark)             (imagem+texto+áudio)
+("feira de       (Qwen2.5-0.5B)         (estilo lambe-lambe)          (MMS-TTS pt)        (imagem+texto+áudio)
  domingo")
 ```
 
@@ -23,30 +23,33 @@ Tema curto  →  LLM expande prompt  →  Difusor+LoRA gera imagem  →  TTS nar
 
 ## Dataset
 
-- **41 imagens** de retratos vintage, todas com licença reutilizável (**Domínio Público / CC0 / CC-BY / CC-BY-SA**).
+- **35 imagens** de retratos vintage, todas com licença reutilizável (**Domínio Público / CC0 / CC-BY / CC-BY-SA**).
 - **Fontes:** Wikimedia Commons, The Met (Open Access) e Flickr.
 - **Proveniência** completa em [`dados/fontes.csv`](dados/fontes.csv) — uma linha por imagem com página de
   origem, link direto, autor, licença e data de coleta.
-- **Legendas em inglês** (melhor para o SD-1.5), prefixadas com o token do estilo, em
-  [`dados/metadata.jsonl`](dados/metadata.jsonl) / [`dados/legendas.txt`](dados/legendas.txt) — rascunho via **BLIP** e revisão manual.
+- **Legendas revisadas** (inglês, prefixadas com o token do estilo) em [`dados/legendas.txt`](dados/legendas.txt)
+  — rascunho gerado por **BLIP** no notebook 01 e **revisado manualmente** pela equipe.
+- As imagens (`*.jpg`) e o `metadata.jsonl` **não são versionados** — são reconstruídos a partir do
+  `fontes.csv` + legendas na execução do notebook 01 (armazenamento no Google Drive).
 
 ## Como executar (Google Colab)
 
-Rode os notebooks em `notebooks/` com **Ambiente de execução → T4 GPU**. Pré-requisito: subir
-`dados/fontes.csv` e `dados/metadata.jsonl` para a pasta do Drive `MyDrive/Colab Notebooks/multimodais/dados`
-e criar o secret **`HF_TOKEN`** (token de escrita) no Colab.
+Rode os notebooks em `notebooks/` com **Ambiente de execução → T4 GPU** e o secret **`HF_TOKEN`**
+(token de escrita) criado no Colab. O notebook 01 faz o *bootstrap* do dataset a partir do repositório.
 
-1. **`01_dataset.ipynb`** — baixa as imagens do `fontes.csv`, gera legendas com **BLIP** (inglês) e
-   regrava o `metadata.jsonl` após a revisão manual.
-2. **`02_treino_lora.ipynb`** — fine-tuning **LoRA** (fp16, T4), `push_to_hub` dos pesos e **versionamento
-   semântico** da release no Hub (célula interativa `#2`).
-3. **`03_avaliacao.ipynb`** — grade comparativa base × LoRA, **CLIPScore**, verificação de memorização e avaliação humana.
+1. **`01_dataset.ipynb`** — clona o repo, baixa as imagens do `fontes.csv`, **recorta 512×512 centrado no
+   rosto**, gera legendas com **BLIP** (inglês) e regrava o `metadata.jsonl` após a revisão.
+2. **`02_treino_lora.ipynb`** — fine-tuning **LoRA** (fp16, T4) de **duas configurações** (rank 8 × rank 4),
+   com **backup no Drive + upload dos pesos + versionamento semântico** no Hub (função `subir_e_versionar`).
+3. **`03_avaliacao.ipynb`** — grade comparativa base × LoRA, **CLIPScore**, verificação de memorização e
+   avaliação humana cega (troque `LORA_REVISION` para comparar as versões).
 4. **App Gradio** — [`app/app.py`](app/app.py), publicado no Spaces.
 
 ## Links
 
 - **Aplicação — Space (Gradio):** https://huggingface.co/spaces/lamble-lambe/atelie
 - **Modelo — Pesos LoRA (Hub):** https://huggingface.co/lamble-lambe/atelie
+- **Versão em produção:** `v1.4.0`
 - **Relatório final:** [`relatorio/relatorio_final.pdf`](relatorio/relatorio_final.pdf)
 
 ### Usar o modelo
@@ -58,21 +61,24 @@ import torch
 pipe = StableDiffusionPipeline.from_pretrained(
     "stable-diffusion-v1-5/stable-diffusion-v1-5", torch_dtype=torch.float16
 ).to("cuda")
-# opcional: revision="v1.0.0" carrega uma versão específica (ver "Versionamento" abaixo)
-pipe.load_lora_weights("lamble-lambe/atelie")
+# revision fixa uma versão específica (ver "Versionamento" abaixo); v1.4.0 = produção
+pipe.load_lora_weights("lamble-lambe/atelie", revision="v1.4.0")
 
-img = pipe("estilo_lambelambe, a vintage black and white portrait of a woman at a sunday market").images[0]
+img = pipe(
+    "estilo_lambelambe, a vintage portrait of an elderly man with a hat, detailed face, black and white",
+    cross_attention_kwargs={"scale": 0.7},
+).images[0]
 img.save("saida.png")
 ```
 
 ### Versionamento dos modelos (Hub)
 
-Cada treino é publicado no Hub e recebe uma **tag semântica** `MAJOR.MINOR.PATCH` (célula `#2` do notebook 02):
-`BUG → PATCH`, `FEATURE → MINOR`, `BREAKING → MAJOR`. A nova versão é calculada a partir da maior tag em produção.
+Cada treino recebe uma **tag semântica** `MAJOR.MINOR.PATCH` (função `subir_e_versionar` no notebook 02):
+`BUG → PATCH`, `FEATURE → MINOR`, `BREAKING → MAJOR`. A nova versão é calculada a partir da maior tag existente.
 Para carregar uma versão específica, use `revision`:
 
 ```python
-pipe.load_lora_weights("lamble-lambe/atelie", revision="v1.0.0")
+pipe.load_lora_weights("lamble-lambe/atelie", revision="v1.4.0")
 ```
 
 ### Configuração do Space (produção)
@@ -83,11 +89,11 @@ Space fica **estável e imune a pushes experimentais** no `main`:
 
 | Variável | Padrão | Função |
 |----------|--------|--------|
-| `LORA_REVISION` | *(vazio = `main`)* | **Fixa a versão de produção** (ex.: `v1.0.0`). Promover = trocar a tag aqui. |
+| `LORA_REVISION` | *(vazio = `main`)* | **Fixa a versão de produção** (em produção: `v1.4.0`). Promover = trocar a tag aqui. |
 | `LORA_REPO` | `lamble-lambe/atelie` | Repositório dos pesos LoRA |
 | `BASE_MODEL` | `stable-diffusion-v1-5/stable-diffusion-v1-5` | Modelo base |
 | `LLM_MODEL` | `Qwen/Qwen2.5-0.5B-Instruct` | LLM que expande o tema (em inglês) |
-| `TTS_MODEL` | `facebook/mms-tts-por` | Síntese de voz |
+| `TTS_MODEL` | `facebook/mms-tts-por` | Síntese de voz (português) |
 
 > **Nunca** coloque tokens/segredos no código — apenas em *secrets* do Space.
 
@@ -98,16 +104,17 @@ atelie-generativo-lambe-lambe/
 ├── README.md
 ├── .gitignore
 ├── dados/
-│   ├── fontes.csv          # página de origem, link direto, autor, licença, data — uma linha por imagem
-│   ├── metadata.jsonl      # file_name + caption (inglês, token do estilo) — usado no treino
-│   └── legendas.txt        # mesmas legendas em texto, para revisão humana
+│   ├── fontes.csv          # origem, link direto, autor, licença, data — uma linha por imagem (35)
+│   └── legendas.txt        # legendas REVISADAS (inglês, token do estilo) — entregável
+│                           # (metadata.jsonl e as imagens .jpg são gerados no notebook 01, não versionados)
 ├── notebooks/
-│   ├── 01_dataset.ipynb    # download das imagens + legendas BLIP + revisão
-│   ├── 02_treino_lora.ipynb# fine-tuning LoRA + push_to_hub + versionamento semântico
+│   ├── 01_dataset.ipynb    # bootstrap + download + recorte no rosto + legendas BLIP + revisão
+│   ├── 02_treino_lora.ipynb# fine-tuning LoRA (2 configs) + backup/upload + versionamento semântico
 │   └── 03_avaliacao.ipynb  # grade comparativa, CLIPScore, memorização, avaliação humana
 ├── app/
 │   ├── app.py              # aplicação Gradio (publicada no Spaces)
-│   └── requirements.txt    # dependências do Space
+│   ├── requirements.txt    # dependências do Space
+│   └── ceub_logo.png       # logo institucional (cabeçalho do app)
 └── relatorio/
     └── relatorio_final.pdf
 ```
@@ -121,16 +128,8 @@ atelie-generativo-lambe-lambe/
 - Diego Nunes de Morais
 - Eduardo Deodoro de Moraes Florindo
 - Higo Soares do Lago
-- Lucio Flavio Vilar de Azevedo
+- Lucio Flávio Vilar de Azevedo
 - Paulo Victor Torres Martins
-
-| Frente | Responsável | Entregável principal |
-|--------|-------------|----------------------|
-| Dados | _________ | `01_dataset.ipynb`, `fontes.csv`, legendas |
-| Treinamento | _________ | `02_treino_lora.ipynb`, pesos no Hub |
-| Pipeline | _________ | `app/app.py` |
-| Interface | _________ | Space Gradio público |
-| Documentação | _________ | `relatorio_final.pdf`, model card, README |
 
 ## Ética e licenças
 
